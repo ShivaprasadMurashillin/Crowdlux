@@ -1,0 +1,31 @@
+# VCS and metadata
+
+.git
+.gitignore
+
+# Python cache/build artifacts
+
+**pycache**/
+_.pyc
+_.pyo
+\*.pyd
+.pytest_cache/
+
+# Local virtual environments
+
+.venv/
+venv/
+
+# Environment and local secrets
+
+.env
+.env.*
+serviceAccountKey.json
+*serviceAccountKey\*.json
+
+# Local tooling artifacts
+
+.vscode/
+coverage/
+build/
+dist/

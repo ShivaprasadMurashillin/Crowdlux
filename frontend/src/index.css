@@ -1,0 +1,19 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+@layer base {
+  body {
+    @apply bg-background text-on-surface font-sans antialiased;
+  }
+}
+
+.transition-slow {
+  transition: all 0.5s ease;
+}
+
+polygon {
+  transition: fill 0.6s ease;
+}
+
+.card-shadow {
+  @apply shadow-card hover:shadow-hover transition-all duration-200;
+}

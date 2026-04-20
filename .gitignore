@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.DS_Store
+venv/
+__pycache__/
+.pytest_cache/
+backend/serviceAccountKey.json
+**/serviceAccountKey.json

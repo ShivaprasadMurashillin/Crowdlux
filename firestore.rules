@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // Public read-only venue data for attendee discovery and live map views.
+    match /stadiums/{stadiumId} {
+      allow read: if true;
+      allow write: if false;
+
+      match /events/{eventId} {
+        allow read: if true;
+        allow write: if false;
+
+        match /zones/{zoneId} {
+          allow read: if true;
+          allow write: if false;
+        }
+
+        match /alerts/{alertId} {
+          allow read: if true;
+          allow write: if false;
+        }
+
+        // Seat reservations are server-managed only.
+        match /seats/{seatId} {
+          allow read, write: if false;
+        }
+      }
+    }
+
+    // Role docs: owner can read own role; writes disabled from client.
+    match /user_roles/{uid} {
+      allow read: if isOwner(uid);
+      allow write: if false;
+    }
+
+    // User profile + seat assignment documents scoped to owner.
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['currentEvent', 'seats'])
+        && (!('currentEvent' in request.resource.data)
+            || request.resource.data.currentEvent is map)
+        && (!('seats' in request.resource.data)
+            || request.resource.data.seats is map);
+      allow delete: if false;
+    }
+
+    // Explicit default deny.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
