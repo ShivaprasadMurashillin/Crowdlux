@@ -71,16 +71,18 @@ async def health_check():
     return {"status": "ok", "service": "crowdlux-api-live"}
 
 # Serve React App
-# Mount static assets first (CSS, JS, images)
-static_path = os.path.join(os.path.dirname(__file__), "static")
-if os.path.isdir(static_path):
-    app.mount("/assets", StaticFiles(directory=os.path.join(static_path, "assets")), name="assets")
+static_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 
-    # Catch-all for React Router frontend
-    @app.get("/{full_path:path}")
-    async def serve_frontend(full_path: str):
-        # Prevent mapping standard files blindly if not handled, but strictly return index.html for React Routes
-        index_path = os.path.join(static_path, "index.html")
-        if os.path.exists(index_path):
-            return FileResponse(index_path)
-        return {"error": "Frontend not generated"}
+@app.get("/{full_path:path}")
+async def serve_frontend(full_path: str):
+    # If the user requests a specific file that exists in the static folder (like assets/..., favicon.svg)
+    file_path = os.path.join(static_path, full_path)
+    if os.path.isfile(file_path):
+        return FileResponse(file_path)
+    
+    # Otherwise, fallback to index.html for React Router
+    index_path = os.path.join(static_path, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+        
+    return {"error": "Frontend not generated"}
