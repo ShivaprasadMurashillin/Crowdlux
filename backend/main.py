@@ -13,10 +13,16 @@ load_dotenv()
 # Initialize Firebase via serviceAccountKey
 cred_path = os.getenv("FIREBASE_CREDENTIALS", "serviceAccountKey.json")
 try:
-    cred = credentials.Certificate(cred_path)
-    firebase_admin.initialize_app(cred)
+    if os.path.exists(cred_path):
+        cred = credentials.Certificate(cred_path)
+        firebase_admin.initialize_app(cred)
+    else:
+        # GCP Cloud Run injects default credentials natively
+        firebase_admin.initialize_app()
 except ValueError:
     pass # Already initialized
+except Exception as e:
+    print(f"Error initializing Firebase: {e}")
 
 # IMPORTANT: Import routers AFTER initializing Firebase!
 from zone_service import router as zone_router
